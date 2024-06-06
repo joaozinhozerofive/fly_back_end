@@ -1,12 +1,13 @@
-<?php 
-require_once($parentDir .  '/Module/UsersModule/users.controller.php');
+<?php
+    require_once($parentDir . '/module/usersModule/users.controller.php');
 
+    $routes = new Route();
+    $routes->useRoute('/users');
+    $usersController =  new UsersController();
 
-$routes = new Route();
-$usersController =  new UsersController;
-
-$routes->useRoute('/users');
-$routes->get('/teste', $usersController->show());
-$routes->post('/teste', $usersController->create());
-
+    $routes->post('/create',   [$usersController, 'create']);
+    $routes->get('/show',      [$usersController, 'show']);
+    $routes->put('/update',    [$usersController, 'update']);
+    $routes->delete('/delete', [$usersController, 'delete']);
+    
 ?>

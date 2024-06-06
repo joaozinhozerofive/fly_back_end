@@ -4,49 +4,29 @@ class Route {
 
     private $alternativeRoute;
 
-    private $responseData;  
+    private $routes = [];  
 
     public function useRoute(string $currentRoute) {
        $this->currentRoute = 'fly-web-service/server' . $currentRoute; 
     }
 
-    public function get(string $alternativeRoute, $data) {
-        if($_SERVER["REQUEST_METHOD"] == 'GET') {
-
-            if($alternativeRoute = '/') {
-                $alternativeRoute = '';
-            }
-    
-            $this->setResponseData($data);
-            $this->alternativeRoute = $alternativeRoute;
-    
-            $currentRoute = $this->currentRoute . $this ->alternativeRoute;
-            $originRoute =  $this->getRouteFormatted($_SERVER['REQUEST_URI']);
-    
-            if($this->matchRoutes($originRoute, $currentRoute)) {
-             echo json_encode($this->responseData);
-            }
-
-        }
+    public function get(string $alternativeRoute, callable $callback) {
+        $this->addRoute('GET', $alternativeRoute, $callback);
     }
 
-    public function post(string $alternativeRoute, $data) {
-        if($_SERVER["REQUEST_METHOD"] == 'POST') {
+    public function post(string $alternativeRoute, callable $callback) {
+        $this->addRoute('POST', $alternativeRoute, $callback);
+    }
 
-            if($alternativeRoute === '/') {
-                $alternativeRoute = '';
-            }
-    
-            $this->setResponseData($data);
-            $this->alternativeRoute = $alternativeRoute;
-    
-            $currentRoute = $this->currentRoute . $this ->alternativeRoute;
-            $originRoute =  $this->getRouteFormatted($_SERVER['REQUEST_URI']);
-    
-            if($this->matchRoutes($originRoute, $currentRoute)) {
-              echo json_encode($this->responseData);
-            }
-        }
+    public function delete(string $alternativeRoute, callable $callback) {
+        $this->addRoute('DELETE', $alternativeRoute, $callback);
+    }
+
+    public function put(string $alternativeRoute, callable $callback) {
+        $this->addRoute('PUT', $alternativeRoute, $callback);
+    }
+    public function pacth(string $alternativeRoute, callable $callback) {
+        $this->addRoute('PATCH', $alternativeRoute, $callback);
     }
 
     private function getRouteFormatted($currentRoute) {
@@ -59,22 +39,55 @@ class Route {
             }
         }
 
-        $sRoute = implode('/', $aRouteWithoutSpace);
+        $sRoute         = implode('/', $aRouteWithoutSpace);
+        $lettersRoute   = str_split($sRoute);
+        $haveQueryParam =  false;
+
+        foreach($lettersRoute as $letter) {
+            if($letter == '?') {
+                $haveQueryParam = true; 
+            }
+        }
+
+        if($haveQueryParam) {
+            $positionQueryParam = strpos($sRoute, '?');
+            $sRoute = substr($sRoute, 0, $positionQueryParam);
+        }
 
         return $sRoute;
+  }
+
+
+    private function addRoute($method, $alternativeRoute, callable $callback) {
+        $uriRequest = $_SERVER['REQUEST_URI'];
+        if($_SERVER["REQUEST_METHOD"] == $method) {
+            if($alternativeRoute === '/') {
+                $alternativeRoute = '';
+            }
+
+            $this->alternativeRoute = $alternativeRoute;
+            $currentRoute = $this->currentRoute . $this ->alternativeRoute;
+            $this->routes[] = $currentRoute;
+            $originRoute  = $this->getRouteFormatted($uriRequest);
+
+            if($this->matchRoutes($originRoute)) {
+              http_response_code(200);  
+
+              $callback();
+            }
+        }
     }
 
-    private function setResponseData($data) {
-        $this->responseData = $data;
-    }
+    private function matchRoutes(string $routeOne) {
+        $routeExist = false;
 
-    private function matchRoutes(string $routeOne, string $routeTwo) {
-        if($routeOne == $routeTwo) {
-            return true;
+        foreach($this->routes as $route) {
+            if($routeOne === $route) {
+                $routeExist = true;
+            }
         }
-        else{
-            return false;
-        }
+
+        return $routeExist;
     }
 
 }

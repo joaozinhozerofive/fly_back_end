@@ -1,37 +1,42 @@
-<?php 
-require_once($parentDir . '\services\utils\index.php');
+<?php
+require_once(__DIR__ . '/users.service.php'); 
+require_once(dirname(dirname(__DIR__)) . '/middleware/authMiddleware.php');
 
 class UsersController {
-
+    
     public function create() {
-     $body = request();
+        $body = requestBody();
 
-     if(!pr_value($body, 'nome')){
-        return AppError('É necessário informar o nme para continuar.');
-     }
-
-     if(!pr_value($body, 'email')){
-        return AppError('É necessário informar um e-mail para continuar.');
-     }    
-     
-
-     try{
-
-    }catch(Exception $e) {
-        return AppError('Não foi possível criar usuário, tente novamente.', 404);
-    }finally{
-        return AppSucess('Usuário criado com sucesso');
+        UserService::create(data : $body);
     }
-    }
-
 
     public function update() {
+        if(!isAuthenticated()) {
+            die;
+        }
+
+        $id   = getRouteParams('id');
+        $body =  requestBody(); 
+        UserService::update(id : $id, data : $body);
     }
 
     public function show() {
+        if(!isAuthenticated()) {
+            die;
+        }
+
+        $params = getRouteParams();
+        $response = UserService::show(params : $params);
+        response($response);
     }
 
     public function delete() {
+        if(!isAuthenticated()) {
+            die;
+        }
+        
+        $id = intval(getRouteParams('id'));   
+        UserService::delete(id : $id);
     }
 }
 
