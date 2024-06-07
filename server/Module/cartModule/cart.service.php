@@ -1,10 +1,8 @@
 <?php
 
-class OrdersService{
-
-    public static function create($data){
-
-        response($data);
+class CartService {
+    public static function create($data) {
+        response($data);    
     }
 
     public static function show($params) {
@@ -16,5 +14,9 @@ class OrdersService{
             $id, 
             $data
         ]);
+    }
+
+    public static function delete($id) {
+        response($id);
     }
 }

@@ -8,6 +8,4 @@
     $routes->post('/create',   [$ordersController, 'create']);
     $routes->get('/show',      [$ordersController, 'show']);
     $routes->put('/update',    [$ordersController, 'update']);
-    $routes->delete('/delete', [$ordersController, 'delete']);
-    
 ?>

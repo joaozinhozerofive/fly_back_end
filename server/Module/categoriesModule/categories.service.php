@@ -4,7 +4,7 @@ class CategoriesService{
     public static function create($data) {
         $category_name = $data->category_name;
         
-        self::validateCategoryName($data);
+        self::validateCategoryName($category_name);
         
         try{
             (new qbquery('categories'))
@@ -30,19 +30,19 @@ class CategoriesService{
             AppError('Informe o id da categoria para continuar', 400);
         }
 
-        $categorie = getData('categories' , ['id' => $id]);
+        $category = getData('categories' , ['id' => $id]);
 
-        if(!$categorie){
+        if(!$category){
             AppError('Categoria não encontrada', 404);
         }
 
-        $categorie =  self::getDataCategorieUpdate($categorie, $data);
+        $category =  self::getDataCategoryUpdate($category, $data);
 
-        self::validateCategoryName($categorie->category_name);
+        self::validateCategoryName($category->category_name);
 
         try{
             (new qbquery('categories'))
-            ->update($categorie, ['id' => $id]);
+            ->update($category, ['id' => $id]);
 
             AppSucess('Categoria atualizada com sucesso!');
         }
@@ -52,65 +52,90 @@ class CategoriesService{
 
     }
 
-    public static function delete($id) {
-        if(!trim($id)){
-            AppError('Informe o id da categoria para continuar', 400);
-        }
-
-        $categorie = getData('categories', ['id' => $id]);
-
-        if(!$categorie){
-            AppError("Categoria não encontrada", 404);
-        }
-
-        try{
-            (new qbquery('categories'))->delete("id = $id");
-            
-            AppSucess('Categoria excluída com sucesso!');
-        }
-        catch(Exception $e){
-            AppError('Não foi possível excluir esta categoria.');
-        }
-    }
-
     private static function getCategoriesByParams($params) {
         if(!empty($params['id'])) {
-            $categorie = getData('categories', ['id' => $params['id']]);
+            $category = (new qbquery('categories'))
+            ->where(['id' => $params['id']])
+            ->getFirst();
 
-            if(!$categorie) {
+            if(!$category) {
                 AppError('Categoria não encontrada.', 404);
             }
 
-            return $categorie;
+            $subcategories = self::getSubcategoriesById($category->id);
+
+            $subcategories = self::getArrayParentCategoryFormatted($subcategories);
+            $category->subcategories = $subcategories;
+
+            return $category;
         }
 
         if($params){ 
-            return (new qbquery('categories'))
+             $categories = (new qbquery('categories'))
             ->whereLike($params)
             ->getMany();
+
+            $categoriesFormatted = []; 
+            
+            foreach($categories as $category) {
+                $subcategories  = self::getSubcategoriesById($category['id']);
+                $category['subcategories'] = self::getArrayParentCategoryFormatted($subcategories);
+                $categoriesFormatted[] = $category;
+            }
+
+            return $categoriesFormatted;
         }
 
         $categories = (new qbquery('categories'))
         ->orderBy(['category_name ASC'])
         ->getMany();
 
-        return $categories;
+        $categoriesFormatted = []; 
+
+        foreach($categories as $category) {
+            $subcategories  = self::getSubcategoriesById($category['id']);
+            $category['subcategories'] = self::getArrayParentCategoryFormatted($subcategories);
+            array_push($categoriesFormatted, $category);
+        }
+
+        return $categoriesFormatted;
     }
 
-    private static function getDataCategorieUpdate($categorie, $data) {
+    private static function getDataCategoryUpdate($category, $data) {
         $category_name  = $data->category_name;
+        $is_active      = $data->is_active;
         
-        $categorie->category_name = trim($category_name ) ? $category_name : $categorie->category_name; 
+        $category->category_name = trim($category_name ) ? $category_name : $category->category_name; 
+        $category->is_active     = trim($is_active) == 1 || trim($is_active) == 0 ? $is_active : $category->is_active; 
 
-        return $categorie;
+        return $category;
     }
 
     private static function validateCategoryName($category_name) {
         if(!trim($category_name)) {
             AppError("Nome da categoria é obrigatório", 400);
         }
+
         if(strlen($category_name) >  50) {
             AppError("o Nome da categoria deve conter no máximo 50 caracteres", 400);
         }
+    }
+
+    private static function getArrayParentCategoryFormatted($subcategories) {
+            $subcategoriesFormatted = [];
+
+            foreach($subcategories as $subcategory) {
+                $subcategory['parent_category'] = array_db_toPHP($subcategory['parent_category']);
+
+                array_push($subcategoriesFormatted, $subcategory);
+            }
+
+            return $subcategoriesFormatted;;
+    }
+
+    private static function getSubcategoriesById($id) {
+        return (new qbquery('subcategories'))
+               ->whereArray(['parent_category' => $id])
+               ->getMany();
     }
 }

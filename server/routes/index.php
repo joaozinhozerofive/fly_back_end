@@ -8,6 +8,8 @@ class Routes {
         require_once($parentDir . '/routes/adress.routes.php');
         require_once($parentDir . '/routes/categories.routes.php');
         require_once($parentDir . '/routes/orders.routes.php');
+        require_once($parentDir . '/routes/cart.routes.php');
+        require_once($parentDir . '/routes/subcategories.routes.php');
     }
 }
 ?>

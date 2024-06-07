@@ -54,4 +54,19 @@ function checkEmail($email) {
 function getUserId() {
   return $_REQUEST['user_id'];
 }
+
+function array_db_toPHP(string  $arrayDb) {
+  $arrayDb = str_replace("}", "", $arrayDb);
+  $arrayDb = str_replace("{", "", $arrayDb);
+
+  return explode(",", $arrayDb);
+} 
+
+
+function array_php_toDb(array $arrayPHP) {
+  $string = implode(',', $arrayPHP);
+  $string = "{".$string ."}";
+
+  return $string;
+} 
 ?>

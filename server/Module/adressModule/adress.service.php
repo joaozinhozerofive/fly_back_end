@@ -28,6 +28,7 @@ class AdressService{
                 'cep'            => $cep,
                 'complement'     => $complement
             ]);
+            
             AppSucess("Endereço criado com sucesso!", 201);
         }
         catch(Exception $e) {

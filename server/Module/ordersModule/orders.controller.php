@@ -14,17 +14,17 @@ class OrdersController{
         if(!isAuthenticated()){
             die;
         }
+        $params = getRouteParams();
+        $response = OrdersService::show(params : $params);
+        response($response);
     }
 
     public function update() {
         if(!isAuthenticated()){
             die;
         }
-    }
-
-    public function delete() {
-        if(!isAuthenticated()){
-            die;
-        }
+        $id = getRouteParams('id');
+        $data = requestBody();
+        OrdersService::update(id : $id, data: $data);
     }
 }

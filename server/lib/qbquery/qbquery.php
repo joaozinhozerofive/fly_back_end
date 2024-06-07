@@ -8,6 +8,7 @@ class qbquery{
     private $orderBy;
     private $caseWhen;
     private $where;
+    private $whereArray;
     private $whereLike;
     private $query;
     private $innerJoin;
@@ -158,17 +159,17 @@ class qbquery{
     public function innerJoin(string $table, array $condition) {
         $this->innerJoin .= " INNER JOIN $table ON ";
         $i = 1;
-        foreach($condition as $value) {
+        foreach($condition as $index => $value) {
             if(count($condition) > 1) {
                 if($i == count($condition)) {
-                    $this->innerJoin .= "$value ";
+                    $this->innerJoin .= "$index = $value ";
                 }
                 else if($i != 1){
-                    $this->innerJoin .= "AND $value ";
+                    $this->innerJoin .= "AND $index = $value ";
                 }
             }
             else{
-               $this->innerJoin .= "$value ";
+               $this->innerJoin .= "$index = $value ";
             }
             $i++;
         }
@@ -178,17 +179,17 @@ class qbquery{
     public function leftJoin(string $table, array $condition) {
         $this->leftJoin .= " LEFT JOIN $table ON ";
         $i = 1;
-        foreach($condition as $value) {
+        foreach($condition as $index => $value) {
             if(count($condition) > 1) {
                 if($i == count($condition)) {
-                    $this->leftJoin .= "$value ";
+                    $this->leftJoin .= "$index = $value  ";
                 }
                 else if($i != 1){
-                    $this->leftJoin .= "AND $value ";
+                    $this->leftJoin .= "AND $index = $value ";
                 }
             }
             else{
-                $this->leftJoin .= "$value ";
+                $this->leftJoin .= "$index = $value ";
             }
             $i++;
         }
@@ -198,6 +199,12 @@ class qbquery{
 
     public function where(array $condition){
         $this->where = $condition;
+
+        return $this;
+    }
+
+    public function whereArray(array $condition) {
+        $this->whereArray = $condition;
 
         return $this;
     }
@@ -243,6 +250,7 @@ class qbquery{
         $this->setQueryInnerJoin();
         $this->setQueryLeftJoin();
         $this->setQueryWhere();
+        $this->setQueryWhereArray();
         $this->setQueryWhereLike();
         $this->setQueryGroupBy();
         $this->setQueryOrderBy();
@@ -315,6 +323,23 @@ class qbquery{
                 $this->query .= " AND $column = $value ";
             }
          $i++;
+        }
+        }
+
+        return $this;
+    }
+    private function setQueryWhereArray() {
+        if($this->whereArray) {
+            $this->query .= " WHERE ";
+            $i = 1;
+            foreach($this->whereArray as $column => $value) {
+                if($i == 1){
+                    $this->query .= "$column @> ARRAY[$value]";
+                }
+                else {
+                    $this->query .= " AND $column @> ARRAY[$value]";
+                }
+            $i++;
         }
         }
 

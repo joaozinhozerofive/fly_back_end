@@ -9,5 +9,4 @@
     $routes->get('/show',      [$adressController, 'show']);
     $routes->put('/update',    [$adressController, 'update']);
     $routes->delete('/delete', [$adressController, 'delete']);
-    
 ?>

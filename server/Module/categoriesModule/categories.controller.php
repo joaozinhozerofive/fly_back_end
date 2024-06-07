@@ -27,9 +27,4 @@ class CategoriesController {
         $body = requestBody();
         CategoriesService::update(id : $id, data: $body);
     }
-
-    public function delete() {
-        $id   = getRouteParams('id');
-        CategoriesService::delete(id : $id);
-    }
 }
