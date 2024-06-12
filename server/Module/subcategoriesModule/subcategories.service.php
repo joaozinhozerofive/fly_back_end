@@ -50,7 +50,7 @@ class SubcategoriesService {
             AppError("Não foi possível atualizar subcategoria.", 500);
         }
 
-        return response($subcategory);
+        return responseJson($subcategory);
     }
 
     private static function validateDataSubcategoryCreate($data) {  

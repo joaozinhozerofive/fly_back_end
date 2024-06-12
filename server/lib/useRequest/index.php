@@ -4,9 +4,12 @@ function requestBody(){
     $data    =  json_decode($requestBody);
     $body    =  new stdClass();
 
+    if(!$data) {
+        responseJson(AppError("JSON Inválido.", 500));
+    }
+
     if(!$requestBody){
-        response(AppError('Não existe corpo para esta requisição', 500));
-        die;
+        responseJson(AppError('Não existe corpo para esta requisição', 500));
     }
 
     foreach($data as $key => $value) {
@@ -16,10 +19,19 @@ function requestBody(){
     return  $body;
 }
 
-function response($response) {
+function responseJson($response) {
     $response = json_encode($response);
 
     echo $response;
+}
+
+function responseStaticFile($fileName) {
+    $file_path = dirname(dirname(__DIR__)) . "/TMP/$fileName";
+
+    if(file_exists($file_path)) {
+        header('Content-Type: image/jpeg');
+        readfile($file_path);
+    }
 }
 
 function getRouteParams($param = null) {
@@ -34,9 +46,17 @@ function getRouteParams($param = null) {
     else {
         return $_GET;
     }
-    
 }
 
+function getFiles() {
+    $files =  new stdClass();
+    $data = json_encode($_FILES);
+    $data = json_decode($data);
 
+    if($data) {
+        return $data;
+    }
 
+    return new stdClass();
+}
 ?>

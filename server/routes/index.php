@@ -10,6 +10,8 @@ class Routes {
         require_once($parentDir . '/routes/orders.routes.php');
         require_once($parentDir . '/routes/cart.routes.php');
         require_once($parentDir . '/routes/subcategories.routes.php');
+        require_once($parentDir . '/routes/products.routes.php');
+        require_once($parentDir . '/routes/productsImages.routes.php');
     }
 }
 ?>

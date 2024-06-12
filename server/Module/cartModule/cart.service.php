@@ -2,7 +2,7 @@
 
 class CartService {
     public static function create($data) {
-        response($data);    
+        responseJson($data);    
     }
 
     public static function show($params) {
@@ -10,13 +10,13 @@ class CartService {
     }
 
     public static function update($id, $data) {
-        response([
+        responseJson([
             $id, 
             $data
         ]);
     }
 
     public static function delete($id) {
-        response($id);
+        responseJson($id);
     }
 }

@@ -69,4 +69,6 @@ function array_php_toDb(array $arrayPHP) {
 
   return $string;
 } 
+
+
 ?>

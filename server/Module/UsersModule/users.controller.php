@@ -27,16 +27,7 @@ class UsersController {
 
         $params = getRouteParams();
         $response = UserService::show(params : $params);
-        response($response);
-    }
-
-    public function delete() {
-        if(!isAuthenticated()) {
-            die;
-        }
-        
-        $id = intval(getRouteParams('id'));   
-        UserService::delete(id : $id);
+        responseJson($response);
     }
 }
 

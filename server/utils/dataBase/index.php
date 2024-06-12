@@ -1,7 +1,7 @@
 <?php
 
 class DataBaseConnection {
-    private $pgConnect;
+    public static $pgConnect;
 
     public function __construct() {
         try{
@@ -18,7 +18,7 @@ class DataBaseConnection {
         $db_pass = getenv('DB_PASS');
         $db_port = getenv('DB_PORT');
         try{
-         $this->pgConnect =  pg_connect("host=$db_host port=$db_port dbname=Fly user=$db_user password=$db_pass");
+         self::$pgConnect =  pg_connect("host=$db_host port=$db_port dbname=Fly user=$db_user password=$db_pass");
         }catch(Exception $e) {
             throw new Exception("Não foi possível estabelecer uma conexão com o banco de dados");
         }
@@ -26,25 +26,25 @@ class DataBaseConnection {
     }
 
     public function db_disconnect(){
-        if($this->pgConnect) {
-            pg_close($this->pgConnect);
+        if(self::$pgConnect) {
+            pg_close(self::$pgConnect);
         }
     }
 
     public function fetch_data($sSql){
-        $query = pg_query($this->pgConnect, $sSql);
+        $query = pg_query(self::$pgConnect, $sSql);
         $data  = pg_fetch_all($query); 
 
         return $data;
     }
 
     public function getConnection() {
-        return $this->pgConnect;
+        return self::$pgConnect;
     }
 
     public function insert($query) {
         try{
-            $result = pg_query($this->pgConnect, $query);
+            $result = pg_query(self::$pgConnect, $query);
 
             if(!$result) {
                 throw new Exception("Erro ao executar a instrução de inserção no banco de dados");
@@ -60,7 +60,7 @@ class DataBaseConnection {
 
     public function update($query) {
         try{
-            $result = pg_query($this->pgConnect, $query);
+            $result = pg_query(self::$pgConnect, $query);
 
             if(!$result) {
                 throw new Exception("Erro ao executar a instrução de atualização no banco de dados");
@@ -75,7 +75,7 @@ class DataBaseConnection {
 
     public function delete($query) {
         try{
-            $result = pg_query($this->pgConnect, $query);
+            $result = pg_query(self::$pgConnect, $query);
 
             if(!$result) {
                 throw new Exception("Erro ao executar a instrução de atualização no banco de dados");

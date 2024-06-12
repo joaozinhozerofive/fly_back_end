@@ -25,8 +25,8 @@ class qbquery{
 
         $i = 1;
         foreach($columns as $column => $value) { 
-            $value = gettype($value) == 'string' ? "'$value'" : $value;
-            
+            $value = gettype($value) == 'string' ? "'" .pg_escape_string(DataBaseConnection::$pgConnect, $value). "'" : $value;
+
             if($i == count($columns)) {
                 $tableColumns .= "$column ";
                 $colummnsValue .= "$value ";
@@ -50,8 +50,7 @@ class qbquery{
         RETURNING *
         ;
         ";
-
-
+        
         $insert = preg_replace('/\n/', '', $insert);
         $insert = preg_replace('/\r/', '', $insert);
 
@@ -70,15 +69,17 @@ class qbquery{
         
         $i = 1;
         foreach($columns as $column => $value) {
+            $value = gettype($value) == 'string' ? "'" .pg_escape_string(DataBaseConnection::$pgConnect, $value). "'" : $value;
+
             if($i == 1) {
-                $update .= " SET $column = '$value', ";
+                $update .= " SET $column = $value, ";
             }
             else{
                 if($i == count($columns)) {
-                    $update .= " $column = '$value'";
+                    $update .= " $column = $value";
                 }
                 else{
-                    $update .= " $column = '$value', ";
+                    $update .= " $column = $value, ";
                 }
             }
             $i++;
@@ -95,10 +96,9 @@ class qbquery{
 
     public function delete(string $condition) {
         $delete = "DELETE FROM $this->table WHERE $condition";
-        
+       
         try{
             (new DataBaseConnection())->delete($delete);
-            return AppSucess('Registro deletado com sucesso');
         }catch(Exception) {
              return json_encode(AppError('Erro ao executar a exclusão no banco de dados', 401));
         }

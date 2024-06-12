@@ -85,25 +85,6 @@ class UserService {
         }
     }
 
-    public static function delete($id){
-        if(!$id) {
-            AppError('Informe o id do usuário para continuar.', 400);
-        }
-        if(!getData('users', ['id' => $id])) {
-            AppError('Usuário não encontrado.', 404);
-        }
-
-        try{
-            (new qbquery('users'))->delete("id = $id");
-
-            AppSucess('Usuário excluído com sucesso!');
-        }
-        catch(Exception $e) {
-            AppError("Não foi possível excluiir usuário.",);
-        }
-
-    }
-
     private static function validadeDataCreate($data) {
         $username     = $data->username;
         $email        = $data->email;
@@ -152,6 +133,7 @@ class UserService {
         $phone        = fmt_phone($data->phone);  
         $cpf          = fmt_cpf($data->cpf);
         $birth        = fmt_data($data->birth);  
+        $is_active    = $data->is_active;
         $password     = $data->password; 
         $passwordHash = password_hash($password, PASSWORD_DEFAULT); 
 
@@ -163,7 +145,8 @@ class UserService {
         $user->cpf       = trim($cpf)       ? $cpf            : $user->cpf;
         $user->birth     = trim($birth)     ? $birth          : $user->birth;
         $user->password  = trim($password)  ? $passwordHash   : $user->password;
-  
+        $user->is_active = trim($is_active) == 1 || trim($is_active) == 0 ? $is_active : $user->is_active;
+        
         return $user;
     }
 

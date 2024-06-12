@@ -17,13 +17,13 @@ function isAuthenticated() {
         return true;
       }
       catch(Exception $e) {
-        response(AppError("Token inválido", 401));
+        responseJson(AppError("Token inválido.", 401));
         return false;
       }
 
     }
     else {
-        response(AppError('Token inválido.', 401));
+      responseJson(AppError('Token inválido.', 401));
         return false;
     }
 }

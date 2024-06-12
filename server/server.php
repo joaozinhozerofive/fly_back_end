@@ -9,7 +9,6 @@
     require_once('./lib/qbquery/qbquery.php');
     require_once('./migrations/migrations.php');
     require_once('./middleware/authMiddleware.php');
-   
     
     allowCors();
     // migrationsRun();
