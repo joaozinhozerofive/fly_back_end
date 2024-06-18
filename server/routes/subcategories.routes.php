@@ -5,7 +5,7 @@
     $routes->useRoute('/subcategories');
     $subcategoriesController =  new SubcategoriesController();
 
-    $routes->post('/create',   [$subcategoriesController, 'create']);
+    $routes->post('/create',   [$subcategoriesController, 'create'], 'isAuthenticated');
     $routes->get('/show',      [$subcategoriesController, 'show']);
-    $routes->put('/update',    [$subcategoriesController, 'update']);
+    $routes->put('/update',    [$subcategoriesController, 'update'], 'isAuthenticated');
 ?>

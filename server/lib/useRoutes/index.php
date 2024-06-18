@@ -10,23 +10,23 @@ class Route {
        $this->currentRoute = 'fly-web-service/server' . $currentRoute; 
     }
 
-    public function get(string $alternativeRoute, callable $callback) {
-        $this->addRoute('GET', $alternativeRoute, $callback);
+    public function get(string $alternativeRoute, callable $callback, callable $middleware = null) {
+        $this->addRoute('GET', $alternativeRoute, $callback, $middleware);
     }
 
-    public function post(string $alternativeRoute, callable $callback) {
-        $this->addRoute('POST', $alternativeRoute, $callback);
+    public function post(string $alternativeRoute, callable $callback, callable $middleware = null) {
+        $this->addRoute('POST', $alternativeRoute, $callback, $middleware);
     }
 
-    public function delete(string $alternativeRoute, callable $callback) {
-        $this->addRoute('DELETE', $alternativeRoute, $callback);
+    public function delete(string $alternativeRoute, callable $callback, callable $middleware = null) {
+        $this->addRoute('DELETE', $alternativeRoute, $callback, $middleware);
     }
 
-    public function put(string $alternativeRoute, callable $callback) {
-        $this->addRoute('PUT', $alternativeRoute, $callback);
+    public function put(string $alternativeRoute, callable $callback, callable $middleware = null) {
+        $this->addRoute('PUT', $alternativeRoute, $callback, $middleware);
     }
-    public function pacth(string $alternativeRoute, callable $callback) {
-        $this->addRoute('PATCH', $alternativeRoute, $callback);
+    public function pacth(string $alternativeRoute, callable $callback, callable $middleware = null) {
+        $this->addRoute('PATCH', $alternativeRoute, $callback, $middleware);
     }
 
     private function getRouteFormatted($currentRoute) {
@@ -58,7 +58,7 @@ class Route {
   }
 
 
-    private function addRoute($method, $alternativeRoute, callable $callback) {
+    private function addRoute($method, $alternativeRoute, callable $callback, callable $middleware = null) {
         $uriRequest = $_SERVER['REQUEST_URI'];
         if($_SERVER["REQUEST_METHOD"] == $method) {
             if($alternativeRoute === '/') {
@@ -72,6 +72,10 @@ class Route {
 
             if($this->matchRoutes($originRoute)) {
               http_response_code(200);  
+              
+              if($middleware) {
+                 $middleware();
+              }
 
               $callback();
             }

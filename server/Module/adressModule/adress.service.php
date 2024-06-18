@@ -37,6 +37,8 @@ class AdressService{
     }
 
     public static function show($params = null) {
+        $params['id'] = intval($params['id']);
+
         if(!empty($params['id'])) {
             $adress = getData('adress', ['id' => $params['id']]);
             return $adress;
@@ -46,8 +48,7 @@ class AdressService{
             return self::getAdressByLikeParams($params);
         }
 
-        return (new qbquery('adress'))
-        ->getMany();
+        return self::getManyAdress();
     }
 
     public static function update($id, $data) {
@@ -111,7 +112,7 @@ class AdressService{
         }
     }
 
-    private static function validateDataCreate($data) {
+    public static function validateDataCreate($data) {
         $user_id        = getUserId();
         $street_adress  = $data->street_adress;
         $residence_code = $data->residence_code;
@@ -155,7 +156,7 @@ class AdressService{
         }
     }
 
-    private static function checkAdressExistsByCep($cep) {
+    public static function checkAdressExistsByCep($cep) {
         $cep = fmt_cep($cep);
         if(strlen($cep) != 8) {
             return false;
@@ -170,8 +171,7 @@ class AdressService{
         return true;
     }
 
-  private static function getAdressByLikeParams($params) {
-      $params['id'] = intval($params['id']);
+    public static function getAdressByLikeParams($params) {
       $adress = (new qbquery('users'))
       ->whereLike($params)
       ->getMany();
@@ -179,7 +179,7 @@ class AdressService{
       return $adress;
   }
 
-  private static function getDataAdressUpdate($adress, $data) {
+  public static function getDataAdressUpdate($adress, $data) {
     $street_adress  = $data->street_adress;
     $residence_code = $data->residence_code;
     $country        = $data->country;
@@ -199,5 +199,10 @@ class AdressService{
     $adress->complement      = trim($complement)     ? $complement     : $adress->complement ;
 
     return $adress;
-}
+  }
+
+  public static function getManyAdress() {
+    return (new qbquery('adress'))
+     ->getMany();
+  }
 }

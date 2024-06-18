@@ -5,7 +5,7 @@
     $routes->useRoute('/productsImages');
     $productImagesController =  new ProductImagesController();
 
-    $routes->post('/create',   [$productImagesController, 'create']);
-    $routes->get('/show',      [$productImagesController, 'show']);
-    $routes->delete('/delete',    [$productImagesController, 'delete']);
+    $routes->post('/create',   [$productImagesController, 'create'],    'isAuthenticated');
+    $routes->get('/show',      [$productImagesController, 'show'],      'isAuthenticated');
+    $routes->delete('/delete', [$productImagesController, 'delete'],    'isAuthenticated');
 ?>

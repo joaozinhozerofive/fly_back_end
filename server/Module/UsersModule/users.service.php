@@ -85,7 +85,7 @@ class UserService {
         }
     }
 
-    private static function validadeDataCreate($data) {
+    public static function validadeDataCreate($data) {
         $username     = $data->username;
         $email        = $data->email;
         $privilege    = $data->privilege;
@@ -125,7 +125,7 @@ class UserService {
         }
     }
 
-    private static function getDataUserUptade($user, $data) {
+    public static function getDataUserUptade($user, $data) {
         $username     = $data->username;
         $email        = $data->email;
         $privilege    = $data->privilege;
@@ -150,7 +150,7 @@ class UserService {
         return $user;
     }
 
-    private static function cpfExists($user) {
+    public static function cpfExists($user) {
         $cpfExists = getData('users', [
             'cpf' => $user->cpf
         ]);
@@ -161,7 +161,7 @@ class UserService {
         return false;
     }
 
-    private static function emailExists($user) {
+    public static function emailExists($user) {
         $emailExists = getData('users', [
             'email' => $user->email
         ]);
@@ -173,27 +173,27 @@ class UserService {
         return false;
     }
 
-    private static function getUserByRouteParams($params = null) {
+    public static function getUserByRouteParams($params = null) {
+        $params['id'] = intval($params['id']);
+        
         if(!empty($params['id'])) {
             $user = self::getUserById($params['id']);
 
             if(!$user) {
                 AppError('Usuário não encontrado.', 404);
             }
+
+            return $user;
         }
 
         if($params){ 
             return self::getUsersByLikeParams($params);
         }
 
-        $user = (new qbquery('users'))
-        ->orderBy(['id DESC'])
-        ->getMany();
-
-        return $user;
+        return self::getManyUsers();
     }
 
-    private static function getUserById($id) {
+    public static function getUserById($id) {
           return (new qbquery('users'))
             ->caseWhen('gender', [
                 '0' => 'Não informado', 
@@ -204,15 +204,20 @@ class UserService {
             ->getFirst();
     }
 
-    private static function getUsersByLikeParams($params) {
-        $params['id'] = intval($params['id']);
-        $users = (new qbquery('users'))
+    public static function getUsersByLikeParams($params) {
+        return (new qbquery('users'))
         ->caseWhen('gender', [
              '0' => 'Não informado', 
             '1' => 'Masculino',
             '2' => 'Feminino'
         ], 'userGender')
         ->whereLike($params)
+        ->getMany();
+    }
+
+    public static function getManyUsers() {
+        return (new qbquery('users'))
+        ->orderBy(['id DESC'])
         ->getMany();
     }
 }

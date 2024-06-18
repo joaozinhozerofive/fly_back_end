@@ -1,4 +1,5 @@
 <?php
+require_once(dirname(__DIR__) . '/subcategoriesModule/subcategories.service.php');
 
 class CategoriesService{
     public static function create($data) {
@@ -52,7 +53,7 @@ class CategoriesService{
 
     }
 
-    private static function getCategoriesByParams($params) {
+    public static function getCategoriesByParams($params) {
         if(!empty($params['id'])) {
             $category = (new qbquery('categories'))
             ->where(['id' => $params['id']])
@@ -62,7 +63,7 @@ class CategoriesService{
                 AppError('Categoria não encontrada.', 404);
             }
 
-            $subcategories = self::getSubcategoriesById($category->id);
+            $subcategories = SubcategoriesService::getSubCategoriesByParentCategory($category->id);
 
             $subcategories = self::getArrayParentCategoryFormatted($subcategories);
             $category->subcategories = $subcategories;
@@ -78,7 +79,7 @@ class CategoriesService{
             $categoriesFormatted = []; 
             
             foreach($categories as $category) {
-                $subcategories  = self::getSubcategoriesById($category['id']);
+                $subcategories  = SubcategoriesService::getSubCategoriesByParentCategory($category['id']);
                 $category['subcategories'] = self::getArrayParentCategoryFormatted($subcategories);
                 $categoriesFormatted[] = $category;
             }
@@ -93,7 +94,7 @@ class CategoriesService{
         $categoriesFormatted = []; 
 
         foreach($categories as $category) {
-            $subcategories  = self::getSubcategoriesById($category['id']);
+            $subcategories  = SubcategoriesService::getSubCategoriesByParentCategory($category['id']);
             $category['subcategories'] = self::getArrayParentCategoryFormatted($subcategories);
             array_push($categoriesFormatted, $category);
         }
@@ -101,7 +102,7 @@ class CategoriesService{
         return $categoriesFormatted;
     }
 
-    private static function getDataCategoryUpdate($category, $data) {
+    public static function getDataCategoryUpdate($category, $data) {
         $category_name  = $data->category_name;
         $is_active      = $data->is_active;
         
@@ -111,7 +112,7 @@ class CategoriesService{
         return $category;
     }
 
-    private static function validateCategoryName($category_name) {
+    public static function validateCategoryName($category_name) {
         if(!trim($category_name)) {
             AppError("Nome da categoria é obrigatório", 400);
         }
@@ -121,7 +122,7 @@ class CategoriesService{
         }
     }
 
-    private static function getArrayParentCategoryFormatted($subcategories) {
+    public static function getArrayParentCategoryFormatted($subcategories) {
             $subcategoriesFormatted = [];
 
             foreach($subcategories as $subcategory) {
@@ -131,11 +132,5 @@ class CategoriesService{
             }
 
             return $subcategoriesFormatted;;
-    }
-
-    private static function getSubcategoriesById($id) {
-        return (new qbquery('subcategories'))
-               ->whereArray(['parent_category' => $id])
-               ->getMany();
     }
 }

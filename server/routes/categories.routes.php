@@ -5,7 +5,7 @@
     $routes->useRoute('/categories');
     $categoriesController =  new CategoriesController();
 
-    $routes->post('/create',   [$categoriesController, 'create']);
+    $routes->post('/create',   [$categoriesController, 'create'], 'isAuthenticated');
     $routes->get('/show',      [$categoriesController, 'show']);
-    $routes->put('/update',    [$categoriesController, 'update']);
+    $routes->put('/update',    [$categoriesController, 'update'], 'isAuthenticated');
 ?>

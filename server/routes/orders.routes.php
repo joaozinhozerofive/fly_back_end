@@ -5,7 +5,7 @@
     $routes->useRoute('/orders');
     $ordersController =  new OrdersController();
 
-    $routes->post('/create',   [$ordersController, 'create']);
-    $routes->get('/show',      [$ordersController, 'show']);
-    $routes->put('/update',    [$ordersController, 'update']);
+    $routes->post('/create',   [$ordersController, 'create'], 'isAuthenticated');
+    $routes->get('/show',      [$ordersController, 'show'],   'isAuthenticated');
+    $routes->put('/update',    [$ordersController, 'update'], 'isAuthenticated');
 ?>

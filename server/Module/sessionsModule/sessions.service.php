@@ -24,7 +24,7 @@ class SessionsService {
      ];
     }
 
-    private static function validateDataCreate($data) {
+    public static function validateDataCreate($data) {
       $email = $data->email;
       $password = $data->password;
  
@@ -42,7 +42,7 @@ class SessionsService {
     }
 
 
-    private static function getUserByEmailAndaPassword($email, $password) { 
+    public static function getUserByEmailAndaPassword($email, $password) { 
         $user =  getData('users', ['email' => $email]);   
         
         if(!$user){
@@ -56,7 +56,7 @@ class SessionsService {
         }
     }
 
-    private static function newToken($user) {
+    public static function newToken($user) {
     $optionsToken = [
         'user_id' =>  $user->id, 
         'email' => $user->email, 

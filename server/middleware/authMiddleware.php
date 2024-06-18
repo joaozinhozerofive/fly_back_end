@@ -13,17 +13,15 @@ function isAuthenticated() {
         $payload = JWT::decode($token, new Key($authSecret, 'HS256'));
         $_REQUEST['user_id'] = $payload->user_id;
         unset($payload->exp);
-
-        return true;
       }
       catch(Exception $e) {
-        responseJson(AppError("Token inválido.", 401));
-        return false;
+        AppError("Token inválido.", 401);
+        die;
       }
 
     }
     else {
-      responseJson(AppError('Token inválido.', 401));
-        return false;
+      AppError('Token inválido.', 401);
+      die;
     }
 }

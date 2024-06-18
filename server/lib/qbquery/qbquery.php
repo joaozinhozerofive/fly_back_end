@@ -215,23 +215,43 @@ class qbquery{
         return $this;
     }
 
-    public function getMany($quantity = null) {
+    public function getMany($quantity = null, $removeColumns = null) {
         $this->query = "SELECT ";
         $this->setQuery();
         if($quantity) {
             $this->query .= " LIMIT $quantity";
         }
 
+        if($removeColumns) {
+            $response = (new DataBaseConnection())->fetch_data($this->query);
+            $newData  = []; 
+            foreach($response as $data) {
+                foreach($removeColumns as $column) {
+                    unset($data[$column]);
+                }
+                array_push($newData, $data);
+            }
+
+            return $newData;
+        }
+
         return (new DataBaseConnection())->fetch_data($this->query);
     }
 
-    public function getFirst() {
+    public function getFirst($removeColumns = null) {
         $this->query = "SELECT ";
         $this->setQuery();
         $this->setQueryLimit(1);
         $data = (new DataBaseConnection())->fetch_data($this->query);
         $json = json_encode($data);
         $data = json_decode($json);
+        if($removeColumns) {
+            foreach($removeColumns as $columns) {
+                if($data) {
+                    unset($data[0]->$columns);
+                } 
+            }
+        }
         return $data ? $data[0] : null;
     }
 

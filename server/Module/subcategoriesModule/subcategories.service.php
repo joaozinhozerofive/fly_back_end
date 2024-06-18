@@ -49,11 +49,9 @@ class SubcategoriesService {
         }catch(Exception $e) {
             AppError("Não foi possível atualizar subcategoria.", 500);
         }
-
-        return responseJson($subcategory);
     }
 
-    private static function validateDataSubcategoryCreate($data) {  
+    public static function validateDataSubcategoryCreate($data) {  
         $subcategory_name = $data->subcategory_name;
         $parent_category  = $data->parent_category;
 
@@ -74,16 +72,9 @@ class SubcategoriesService {
             }
         }
 
-        $parent_category = implode(',',$parent_category);
-
-        $parentCategory = (new qbquery('categories'))
-        ->whereArray(['id' => $parent_category])
-        ->getSQL();
-
-        $parentCategory = array_db_toPHP($parentCategory);
     }
 
-    private static function validateDataSubcategoryUpdate($subcategory) {
+    public static function validateDataSubcategoryUpdate($subcategory) {
         foreach($subcategory->parent_category as $parent){
             $category = (new qbquery('categories'))
             ->where(['id' => $parent])
@@ -101,11 +92,9 @@ class SubcategoriesService {
         self::validateSubCategoryName($subcategory->subcategory_name);
     }
 
-    private static function getSubcategoriesByParams($params) {
+    public static function getSubcategoriesByParams($params) {
         if(!empty($params['id'])) {
-            $subcategory = (new qbquery('subcategories'))
-            ->where(['id' => $params['id']])
-            ->getFirst();
+            $subcategory = self::getSubcategoryById($params['id']);
 
             if(!$subcategory) {
                 AppError('Subcategoria não encontrada.', 404);
@@ -119,31 +108,18 @@ class SubcategoriesService {
         if($params){ 
 
             if($params['parent_category']) {
-                return (new qbquery('subcategories'))
-                ->whereArray(['parent_category' => $params['parent_category']])
-                ->getSQL();
+                return self::getSubCategoriesByParentCategory($params['parent_category']);
             }
 
-            return (new qbquery('subcategories'))
-            ->whereLike($params)
-            ->getMany();
+            return self::getSubcategoriesByLikeParams($params);
         }
 
-        $subcategories = (new qbquery('subcategories'))
-        ->orderBy(['subcategory_name ASC'])
-        ->getMany();
+        $subcategories = self::getManySubcategories();
 
-        $newSubcategories = [];
-
-        foreach($subcategories as $subcategory) {
-            $subcategory['parent_category'] = array_db_toPHP($subcategory['parent_category']);
-            array_push($newSubcategories, $subcategory);
-        }
-
-        return $newSubcategories ;
+        return $subcategories;
     }
 
-    private static function getDataSubcategoryUpdate($subcategory, $data) { 
+    public static function getDataSubcategoryUpdate($subcategory, $data) { 
         $subcategory_name = $data->subcategory_name;
         $parent_category  = $data->parent_category;
         $is_active        = $data->is_active;
@@ -156,12 +132,45 @@ class SubcategoriesService {
     }
 
 
-    private static function validateSubCategoryName($subcategory_name) {
+    public static function validateSubCategoryName($subcategory_name) {
         if(!trim($subcategory_name)) {
             AppError("Nome da subcategoria é obrigatório", 400);
         }
         if(strlen($subcategory_name) >  50) {
             AppError("o Nome da subcategoria deve conter no máximo 50 caracteres", 400);
         }
+    }
+
+    public static function getSubCategoriesByParentCategory($parent_category) {
+        return (new qbquery('subcategories'))
+        ->whereArray(['parent_category' => $parent_category])
+        ->getMany();
+    }
+
+    public static function getSubcategoryById($id) {
+        return (new qbquery('subcategories'))
+        ->where(['id' => $id])
+        ->getFirst();
+    }
+
+    public static function getSubcategoriesByLikeParams($params) {
+        return (new qbquery('subcategories'))
+        ->whereLike($params)
+        ->getMany();
+    }
+
+    public static function getManySubcategories() {
+        $subcategories =  (new qbquery('subcategories'))
+        ->orderBy(['subcategory_name ASC'])
+        ->getMany();
+
+        $newSubcategories = [];
+
+        foreach($subcategories as $subcategory) {
+            $subcategory['parent_category'] = array_db_toPHP($subcategory['parent_category']);
+            array_push($newSubcategories, $subcategory);
+        }
+
+        return $newSubcategories ;
     }
 }

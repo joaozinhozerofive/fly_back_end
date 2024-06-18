@@ -5,8 +5,8 @@
     $routes->useRoute('/adress');
     $adressController =  new AdressController();
 
-    $routes->post('/create',   [$adressController, 'create']);
-    $routes->get('/show',      [$adressController, 'show']);
-    $routes->put('/update',    [$adressController, 'update']);
-    $routes->delete('/delete', [$adressController, 'delete']);
+    $routes->post('/create',   [$adressController, 'create'], 'isAuthenticated');
+    $routes->get('/show',      [$adressController, 'show'],   'isAuthenticated');
+    $routes->put('/update',    [$adressController, 'update'], 'isAuthenticated');
+    $routes->delete('/delete', [$adressController, 'delete'], 'isAuthenticated');
 ?>

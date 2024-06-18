@@ -12,7 +12,7 @@ class ProductImagesService {
             AppError("Informe o produto para continuar", 400);
         }
 
-        $product = getData('products',[ 'id' => $product_id]);    
+        $product = getData('products', ['id' => $product_id]);    
 
         if(!$product){
             AppError('Produto não encontrado', 404);
@@ -21,14 +21,15 @@ class ProductImagesService {
         $newHash = bin2hex(random_bytes(16));
         $product_image->name = $newHash . $product_image->name;
 
-        UploadConfigs::saveFile($files->product_images);
 
         try {
-            $teste = (new qbquery('product_images'))
+             (new qbquery('product_images'))
             ->insert([
                 'image'      => $product_image->name, 
                 'product_id' => $product_id
             ]);
+
+            UploadConfigs::saveFile($files->product_images);
 
             AppSucess("Imagem inserida com sucesso", 201);
         }
@@ -68,5 +69,13 @@ class ProductImagesService {
         catch(Exception $e) {
             AppError("Não foi possível deletar imagem do produto.");
         }
+    }
+
+    public static function getProductImagesByProductId($product_id) {
+        return (new qbquery('product_images'))
+        ->where([
+            'product_id' => $product_id
+        ])
+        ->getMany(null, ['id', 'product_id']);
     }
 }

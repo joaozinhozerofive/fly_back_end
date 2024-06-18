@@ -8,10 +8,8 @@ class SessionsController {
       
       $response = SessionsService::create($body);
       
-      response($response);
+      responseJson($response);
     }
-
-    
 }
 
 ?>
