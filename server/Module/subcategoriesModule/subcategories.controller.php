@@ -9,7 +9,7 @@ class SubcategoriesController {
     public function show() {
         $params   = getRouteParams();
         $response =  SubcategoriesService::show(params: $params);
-        responseJson($response);
+        responseJson($params);
     }
 
     public function update() {

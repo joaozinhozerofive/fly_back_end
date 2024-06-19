@@ -377,23 +377,34 @@ class qbquery{
                
                $i = 1;
               foreach($this->whereLike as $column => $value) {
-                if(gettype($value) == 'string' ) {
+                $dataTypeColumn = $this->getTypeColumnOfTable($column, $this->table)[0];
+
+                if($dataTypeColumn['data_type'] == 'character varying') {
                     $value = strtolower($value);
                     $value = "'%$value%'";
                 }
-                  
-                if(gettype($value) == 'integer') {
-                     continue;   
-                }
 
-                  if($i == 1){
-                     
-                      $this->query .= "LOWER($column) LIKE $value";
-                  }
-                  else {
-                      $this->query .= " AND $column LIKE $value ";
-                  }
+
+                if($dataTypeColumn['data_type'] == 'integer') {
+                    $value = $value ? $value : 0;
+                    if($i == 1) {
+                        $this->query .= "$column = $value ";
+                       }
+                       else {
+                           $this->query .= " AND $column = $value ";
+                       }
+                }
+                else {
+                    if($i == 1) {
+                     $this->query .= "LOWER($column) LIKE $value";
+                    }
+                    else {
+                        $this->query .= " AND LOWER($column) LIKE $value ";
+                    }
+                }
+                
                $i++;
+               
               }
         }
 
@@ -438,6 +449,15 @@ class qbquery{
 
     private function setQueryLimit(int $limit) {
         $this->query .= " LIMIT $limit";
+    }
+
+    public function getTypeColumnOfTable($column, $table) {
+        $sql ="SELECT data_type
+                FROM information_schema.columns
+               WHERE table_name = '$table'
+                 AND column_name = '$column'";
+                 
+        return (new DataBaseConnection())->fetch_data($sql);
     }
         
 }

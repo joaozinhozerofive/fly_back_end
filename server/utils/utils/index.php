@@ -70,5 +70,12 @@ function array_php_toDb(array $arrayPHP) {
   return $string;
 } 
 
+function objectToArrayAssoc($obj) {
+  $obj = json_encode($obj);
+  $obj = json_decode($obj, true);
+
+  return $obj;
+}
+
 
 ?>

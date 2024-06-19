@@ -36,7 +36,6 @@ class UserService {
 
     public static function show($params =  null) {
         $user = self::getUserByRouteParams($params);
-
         return $user;
     }
 
@@ -174,10 +173,11 @@ class UserService {
     }
 
     public static function getUserByRouteParams($params = null) {
-        $params['id'] = intval($params['id']);
+
+        $id = intval(pr_value($params, 'id'));
         
-        if(!empty($params['id'])) {
-            $user = self::getUserById($params['id']);
+        if($id) {
+            $user = self::getUserById($id);
 
             if(!$user) {
                 AppError('Usuário não encontrado.', 404);
@@ -205,6 +205,8 @@ class UserService {
     }
 
     public static function getUsersByLikeParams($params) {
+        $params = objectToArrayAssoc($params);
+
         return (new qbquery('users'))
         ->caseWhen('gender', [
              '0' => 'Não informado', 

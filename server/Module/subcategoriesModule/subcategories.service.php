@@ -22,7 +22,7 @@ class SubcategoriesService {
     }
 
     public static function show($params) {
-        $subcategories = self::getSubcategoriesByParams($params);
+        $subcategories = self::getSubcategoriesByRouteParams($params);
 
         return $subcategories;
     }
@@ -92,9 +92,12 @@ class SubcategoriesService {
         self::validateSubCategoryName($subcategory->subcategory_name);
     }
 
-    public static function getSubcategoriesByParams($params) {
-        if(!empty($params['id'])) {
-            $subcategory = self::getSubcategoryById($params['id']);
+    public static function getSubcategoriesByRouteParams($params) {
+        $id = intval(pr_value($params, 'id'));
+        $parent_category = intval(pr_value($params, 'parent_category'));
+
+        if($id) {
+            $subcategory = self::getSubcategoryById($id);
 
             if(!$subcategory) {
                 AppError('Subcategoria não encontrada.', 404);
@@ -105,18 +108,15 @@ class SubcategoriesService {
             return $subcategory;
         }
 
+        if($parent_category) {
+            return self::getSubCategoriesByParentCategory($parent_category);
+        }
+
         if($params){ 
-
-            if($params['parent_category']) {
-                return self::getSubCategoriesByParentCategory($params['parent_category']);
-            }
-
             return self::getSubcategoriesByLikeParams($params);
         }
 
-        $subcategories = self::getManySubcategories();
-
-        return $subcategories;
+        return self::getManySubcategories();
     }
 
     public static function getDataSubcategoryUpdate($subcategory, $data) { 
@@ -154,6 +154,7 @@ class SubcategoriesService {
     }
 
     public static function getSubcategoriesByLikeParams($params) {
+        $params = objectToArrayAssoc($params);
         return (new qbquery('subcategories'))
         ->whereLike($params)
         ->getMany();

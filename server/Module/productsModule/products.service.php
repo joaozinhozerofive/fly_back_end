@@ -104,10 +104,10 @@ class ProductsService{
     }
 
     public static function getProductsByRouteParams($params) {
-        $params['id'] = intval($params['id']);
+        $id = intval(pr_value($params, 'id'));
 
-        if(!empty($params['id'])) {
-            $products = self::getProductById($params['id']);
+        if($id) {
+            $products = self::getProductById($id);
             
             return $products;
         }
@@ -130,7 +130,7 @@ class ProductsService{
         ->getFirst(['parent_category', 'id']);
 
         if(!$product) {
-                AppError("Produto não encontrado", 404);
+            AppError("Produto não encontrado", 404);
         }
 
         $product_images = ProductImagesService::getProductImagesByProductId($product->product_id);
@@ -141,6 +141,8 @@ class ProductsService{
     }
 
     public static function getProductsByLikeParams($params){
+        $params = objectToArrayAssoc($params);
+
         $products = (new qbquery('products'))
         ->whereLike($params)
         ->innerJoin('subcategories', ['subcategories.id' => 'products.subcategory_id'])

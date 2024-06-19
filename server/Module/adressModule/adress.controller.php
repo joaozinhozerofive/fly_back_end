@@ -5,7 +5,8 @@ require_once(__DIR__ . '/adress.service.php');
 class AdressController{
     public function create() {
         $body = requestBody();
-        AdressService::create(data : $body);
+        $response = AdressService::create(data : $body);
+        responseJson($response);
     }
 
     public function show() {

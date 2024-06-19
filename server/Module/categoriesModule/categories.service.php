@@ -54,9 +54,11 @@ class CategoriesService{
     }
 
     public static function getCategoriesByParams($params) {
-        if(!empty($params['id'])) {
+        $id = intval(pr_value($params, 'id'));
+
+        if($id) {
             $category = (new qbquery('categories'))
-            ->where(['id' => $params['id']])
+            ->where(['id' => $id])
             ->getFirst();
 
             if(!$category) {
@@ -72,34 +74,12 @@ class CategoriesService{
         }
 
         if($params){ 
-             $categories = (new qbquery('categories'))
-            ->whereLike($params)
-            ->getMany();
+            $categories = self::getCategoriesByLikeParams($params);
 
-            $categoriesFormatted = []; 
-            
-            foreach($categories as $category) {
-                $subcategories  = SubcategoriesService::getSubCategoriesByParentCategory($category['id']);
-                $category['subcategories'] = self::getArrayParentCategoryFormatted($subcategories);
-                $categoriesFormatted[] = $category;
-            }
-
-            return $categoriesFormatted;
+            return $categories;
         }
 
-        $categories = (new qbquery('categories'))
-        ->orderBy(['category_name ASC'])
-        ->getMany();
-
-        $categoriesFormatted = []; 
-
-        foreach($categories as $category) {
-            $subcategories  = SubcategoriesService::getSubCategoriesByParentCategory($category['id']);
-            $category['subcategories'] = self::getArrayParentCategoryFormatted($subcategories);
-            array_push($categoriesFormatted, $category);
-        }
-
-        return $categoriesFormatted;
+        return self::getManyCategories();
     }
 
     public static function getDataCategoryUpdate($category, $data) {
@@ -132,5 +112,39 @@ class CategoriesService{
             }
 
             return $subcategoriesFormatted;;
+    }
+
+    public static function getCategoriesByLikeParams($params) {
+        $params = objectToArrayAssoc($params);
+
+        $categories = (new qbquery('categories'))
+        ->whereLike($params)
+        ->getMany();
+
+        $categoriesFormatted = []; 
+            
+            foreach($categories as $category) {
+                $subcategories  = SubcategoriesService::getSubCategoriesByParentCategory($category['id']);
+                $category['subcategories'] = self::getArrayParentCategoryFormatted($subcategories);
+                $categoriesFormatted[] = $category;
+            }
+
+        return $categoriesFormatted;
+    }
+
+    public static function getManyCategories() {
+        $categories = (new qbquery('categories'))
+        ->orderBy(['category_name ASC'])
+        ->getMany();
+
+        $categoriesFormatted = []; 
+
+        foreach($categories as $category) {
+            $subcategories  = SubcategoriesService::getSubCategoriesByParentCategory($category['id']);
+            $category['subcategories'] = self::getArrayParentCategoryFormatted($subcategories);
+            array_push($categoriesFormatted, $category);
+        }
+
+        return $categoriesFormatted;
     }
 }

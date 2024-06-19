@@ -40,11 +40,18 @@ function getRouteParams($param = null) {
          return $_GET[$param];
       }
       else {
-        return null;
+        $_GET[$param] = "";
+        return $_GET;
       }
     }
     else {
-        return $_GET;
+        $param = new stdClass(); 
+
+        foreach($_GET as $key => $value) {
+            $param->$key = $value;
+        }
+
+        return $param;
     }
 }
 
@@ -58,5 +65,12 @@ function getFiles() {
     }
 
     return new stdClass();
+}
+
+function requestFormData() {
+    $data = json_encode($_POST);
+    $data = json_decode($data);
+
+    return $data; 
 }
 ?>

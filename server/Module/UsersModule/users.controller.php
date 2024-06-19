@@ -21,10 +21,6 @@ class UsersController {
     }
 
     public function show() {
-        if(!isAuthenticated()) {
-            die;
-        }
-
         $params = getRouteParams();
         $response = UserService::show(params : $params);
         responseJson($response);

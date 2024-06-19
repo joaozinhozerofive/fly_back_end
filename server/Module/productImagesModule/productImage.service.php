@@ -12,7 +12,7 @@ class ProductImagesService {
             AppError("Informe o produto para continuar", 400);
         }
 
-        $product = getData('products', ['id' => $product_id]);    
+        $product = getData('products', ['product_id' => $product_id]);    
 
         if(!$product){
             AppError('Produto não encontrado', 404);
@@ -44,7 +44,7 @@ class ProductImagesService {
     }
 
     public static function delete($product_id) {
-        $product = getData('products', ['id' => $product_id]);
+        $product = getData('products', ['product_id' => $product_id]);
         $product_images = (new qbquery('product_images'))
         ->where(['product_id' => $product->id])
         ->getMany();
