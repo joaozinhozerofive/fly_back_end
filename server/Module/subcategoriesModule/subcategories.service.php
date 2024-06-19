@@ -28,7 +28,7 @@ class SubcategoriesService {
     }
 
     public static function update($id, $data) {
-        $subcategory = getData('subcategories', ['id' => $id]);
+        $subcategory = self::getSubcategoryById($id);
         
         if(!$subcategory) {
             AppError("Subcategoria não encontrada.", 404);
@@ -155,6 +155,7 @@ class SubcategoriesService {
 
     public static function getSubcategoriesByLikeParams($params) {
         $params = objectToArrayAssoc($params);
+        
         return (new qbquery('subcategories'))
         ->whereLike($params)
         ->getMany();

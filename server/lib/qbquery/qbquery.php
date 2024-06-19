@@ -85,12 +85,12 @@ class qbquery{
             $i++;
         }
         $update .= $this->getConditions($conditions);
-
         try{
             (new DataBaseConnection())->update($update);
-            return AppSucess('Registro atualizado com sucesso');
-        }catch(Exception) {
-             return json_encode(AppError('Erro ao executar a atualização no banco de dados', 401));
+
+        }
+        catch(Exception) {
+             die;
         }
     }
 

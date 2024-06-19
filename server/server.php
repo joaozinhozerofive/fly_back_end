@@ -9,6 +9,7 @@
     require_once('./lib/qbquery/qbquery.php');
     require_once('./migrations/migrations.php');
     require_once('./middleware/authMiddleware.php');
+    date_default_timezone_set('America/Sao_Paulo');
     
     allowCors();
     // migrationsRun();

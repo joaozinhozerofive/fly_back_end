@@ -1,5 +1,5 @@
 <?php
-
+require_once(dirname(__DIR__) . '/productsModule/products.service.php');
 class OrdersService{
 
     public static function create($data){
@@ -9,8 +9,9 @@ class OrdersService{
         
         self::validateOrderCreate($data);
 
-        $total_price = self::getTotalPriceByArrayProducts($products); 
-
+        $products   = self::getProductsWithPrice($products); 
+        $total_price = self::getTotalPriceByArrayProducts($products);
+       
         try {   
             $order = (new qbquery('orders'))
             ->insert([
@@ -22,12 +23,7 @@ class OrdersService{
             ]);
 
             foreach($products as $product) {
-                (new qbquery('order_products'))
-                ->insert([
-                    "order_id"   => $order['id'],
-                    "product_id" => $product->id,
-                    "quantity"   => $product->quantity
-                ]);
+                self::insertOrderProducts($order['id'], $product);
             }
 
             AppSucess("Pedido feito com sucesso", 201);
@@ -44,10 +40,31 @@ class OrdersService{
     }
 
     public static function update($id, $data) {
-        responseJson([
-            $id, 
-            $data
-        ]);
+        $order = getData('orders', ['id' => $id]);
+
+        if(!$order) {
+            AppError("Pedido não encontrado", 404);
+        }
+
+        $order    = self::getDataOrderUpdate($order, $data);
+        $products = $order ->products;
+        unset($order->products);
+
+        try {
+            (new qbquery('orders'))
+            ->update($order, ['id' => $id]);
+
+            self::deleteOrderProductsByOrderId($order->id);
+
+            foreach($products as $product) {
+                self::insertOrderProducts($order->id, $product);  
+            }
+
+            AppSucess("Pedido atualizado com sucesso!");
+        }
+        catch(Exception $e) {
+            AppError('Não foi possível atualizar pedido.', 400);
+        }
     }
 
     public static function validateOrderCreate($data) {
@@ -75,41 +92,28 @@ class OrdersService{
         }
     } 
     
-    public static function getTotalPriceByArrayProducts($products) {
-        $totalPrice = 0;
-
+    public static function getProductsWithPrice($products) {
+        $newProduct = [];
         foreach($products as $product) {
-            $savedProduct = getData('products', ['product_id' => $product->id]);
+            $savedProduct  = getData('products', ['product_id' => $product->id]);
             $product_price = floatval(str_replace(",", ".", $savedProduct->product_price));
-            $totalPrice += $product_price * $product->quantity;
+            $totalPrice    = $product_price * $product->quantity;
+            $product->total_price = $totalPrice; 
+            array_push($newProduct, $product);
         }
 
-        return self::getPriceFormattedPtBr($totalPrice);
+        return $newProduct;
     }
 
-    private static function getPriceFormattedPtBr($totalPrice) {
-        $totalPrice       = strval($totalPrice);
-        $totalPrice       = str_replace(".", ",", $totalPrice);
-        $totalPrice       = explode(",", $totalPrice);
-        $priceBeforeComma = strrev($totalPrice[0]);
-        $priceBeforeComma = str_split($priceBeforeComma);
 
-        $newPrice = '';
-        $i = 0;
-        foreach($priceBeforeComma as $string) {
-            if($i == 2) {
-                $newPrice .= "$string.";
-            } 
-            else {
-                  $newPrice .= "$string";
-            }
+    public static function getTotalPriceByArrayProducts($products) {
+        $price = 0;
 
-            $i++;
+        foreach($products as $product) {
+            $price += $product->total_price;
         }
 
-        $newPrice = strrev($newPrice) . ",".str_pad($totalPrice[1], 2, '0', STR_PAD_RIGHT)."";
-
-        return $newPrice;
+        return getPriceFormattedPtBr($price);
     }
 
     public static function getOrdersByRouteParams($params) {
@@ -153,7 +157,7 @@ class OrdersService{
             2 => 'Em rota de entrega',
             3 => 'Entregue',
             4 => 'Cancelado/Devolvido',
-        ], 'status')
+        ], 'descriptionStatus')
         ->getFirst();
 
         if($order) {
@@ -173,7 +177,7 @@ class OrdersService{
             2 => 'Em rota de entrega',
             3 => 'Entregue',
             4 => 'Cancelado/Devolvido',
-        ], 'status')
+        ], 'descriptionStatus')
         ->getFirst();
 
         if($order) {
@@ -202,7 +206,7 @@ class OrdersService{
             2 => 'Em rota de entrega',
             3 => 'Entregue',
             4 => 'Cancelado/Devolvido',
-        ], 'status')
+        ], 'descriptionStatus')
         ->getMany();
         
         $newOrder = [];
@@ -223,7 +227,7 @@ class OrdersService{
             2 => 'Em rota de entrega',
             3 => 'Entregue',
             4 => 'Cancelado/Devolvido',
-        ], 'status')
+        ], 'descriptionStatus')
         ->getMany();
 
         $newOrder = [];
@@ -235,5 +239,37 @@ class OrdersService{
         }
 
         return $newOrder;
+    }
+
+    public static function getDataOrderUpdate($order, $data) {
+        $status     = $data->status;
+        $adress_id  = $data->adress_id;
+        $products   = self::getProductsWithPrice($data->products);
+        $totalPrice = self::getTotalPriceByArrayProducts($products);
+        
+        $order->adress_id   = trim($adress_id) ? $adress_id : $order->adress_id;
+        $order->status      = trim($status)    ? $status    : $order->status;
+        $order->products    = $products;
+        $order->total_price = $totalPrice;  
+        $order->updated_at  = date('Y-m-d H:i:s');
+        
+        return $order;
+    }
+
+    public static function deleteOrderProductsByOrderId($orderId) {
+        return (new qbquery('order_products'))
+        ->delete("order_id = $orderId");
+    }
+
+    public static function insertOrderProducts($orderId, $product) {
+        $price = getPriceFormattedPtBr($product->total_price);
+        
+        (new qbquery('order_products'))
+         ->insert([
+            'order_id'      => $orderId, 
+            'product_id'    => $product->id,
+            'quantity'      => $product->quantity,
+            'price'         => $price
+        ]);
     }
 }

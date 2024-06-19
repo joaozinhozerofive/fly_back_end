@@ -77,5 +77,30 @@ function objectToArrayAssoc($obj) {
   return $obj;
 }
 
+function getPriceFormattedPtBr($totalPrice) {
+  $totalPrice       = strval($totalPrice);
+  $totalPrice       = str_replace(".", ",", $totalPrice);
+  $totalPrice       = explode(",", $totalPrice);
+  $priceBeforeComma = strrev($totalPrice[0]);
+  $priceBeforeComma = str_split($priceBeforeComma);
+
+  $newPrice = '';
+  $i = 0;
+  foreach($priceBeforeComma as $string) {
+      if($i == 2) {
+          $newPrice .= "$string.";
+      } 
+      else {
+            $newPrice .= "$string";
+      }
+
+      $i++;
+  }
+
+  $newPrice = strrev($newPrice) . ",".str_pad($totalPrice[1], 2, '0', STR_PAD_RIGHT)."";
+
+  return $newPrice;
+}
+
 
 ?>
