@@ -15,6 +15,7 @@ class Routes {
         require_once($parentDir . '/routes/files.routes.php');
         require_once($parentDir . '/routes/showcase.routes.php');
         require_once($parentDir . '/routes/themeColor.routes.php');
+        require_once($parentDir . '/routes/usersHelp.routes.php');
     }
 }
 ?>

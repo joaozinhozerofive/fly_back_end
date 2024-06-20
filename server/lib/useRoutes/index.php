@@ -90,7 +90,7 @@ class Route {
                 $routeExist = true;
             }
         }
-
+       
         return $routeExist;
     }
 
