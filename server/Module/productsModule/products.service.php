@@ -130,7 +130,7 @@ class ProductsService{
         ->getFirst(['parent_category', 'id']);
 
         if(!$product) {
-            AppError("Produto não encontrado", 404);
+            AppError("Produto não encontrado (id:$id).", 404);
         }
 
         $product_images = ProductImagesService::getProductImagesByProductId($product->product_id);
