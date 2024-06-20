@@ -173,19 +173,6 @@ class UserService {
     }
 
     public static function getUserByRouteParams($params = null) {
-
-        $id = intval(pr_value($params, 'id'));
-        
-        if($id) {
-            $user = self::getUserById($id);
-
-            if(!$user) {
-                AppError('Usuário não encontrado.', 404);
-            }
-
-            return $user;
-        }
-
         if($params){ 
             return self::getUsersByLikeParams($params);
         }

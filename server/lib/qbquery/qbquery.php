@@ -61,7 +61,7 @@ class qbquery{
         }
     }
 
-    public function update($columns, array $conditions) {
+    public function update($columns, array $conditions =  null) {
         $columns = json_encode($columns);
         $columns = json_decode($columns, true);
 
@@ -70,8 +70,10 @@ class qbquery{
         $i = 1;
         foreach($columns as $column => $value) {
             $value = gettype($value) == 'string' ? "'" .pg_escape_string(DataBaseConnection::$pgConnect, $value). "'" : $value;
-
-            if($i == 1) {
+            if($i == 1 && $i = count($columns)) {
+                $update .= " SET $column = $value ";
+            }
+            else if($i == 1 && $i) {
                 $update .= " SET $column = $value, ";
             }
             else{
@@ -84,7 +86,12 @@ class qbquery{
             }
             $i++;
         }
-        $update .= $this->getConditions($conditions);
+
+        if($conditions) {
+            $update .= $this->getConditions($conditions);
+        }
+
+
         try{
             (new DataBaseConnection())->update($update);
 

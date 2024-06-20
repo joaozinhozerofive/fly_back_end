@@ -10,11 +10,16 @@ class ShowcaseController {
 
 
     public function show() {
-        
+        $params   = getRouteParams();
+        $response = ShowcaseService::show(params : $params);
+
+        responseJson($response);
     }
 
     public function update() {
-
+        $id   = getRouteParams('id');
+        $body = requestBody();
+        ShowcaseService::update(id : $id, data : $body);
     }
 
     public function delete() {

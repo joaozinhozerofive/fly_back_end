@@ -24,7 +24,7 @@ class SubcategoriesService {
     public static function show($params) {
         $subcategories = self::getSubcategoriesByRouteParams($params);
 
-        return $subcategories;
+       return $subcategories;
     }
 
     public static function update($id, $data) {
@@ -142,9 +142,18 @@ class SubcategoriesService {
     }
 
     public static function getSubCategoriesByParentCategory($parent_category) {
-        return (new qbquery('subcategories'))
+        $subcategories = (new qbquery('subcategories'))
         ->whereArray(['parent_category' => $parent_category])
         ->getMany();
+
+        $newSubcategories = [];
+
+        foreach($subcategories as $subcategory) {
+            $subcategory['parent_category'] = array_db_toPHP($subcategory['parent_category']);
+            array_push($newSubcategories, $subcategory);
+        }
+
+        return $newSubcategories;
     }
 
     public static function getSubcategoryById($id) {
@@ -156,9 +165,18 @@ class SubcategoriesService {
     public static function getSubcategoriesByLikeParams($params) {
         $params = objectToArrayAssoc($params);
         
-        return (new qbquery('subcategories'))
+        $subcategories = (new qbquery('subcategories'))
         ->whereLike($params)
         ->getMany();
+
+        $newSubcategories = [];
+
+        foreach($subcategories as $subcategory) {
+            $subcategory['parent_category'] = array_db_toPHP($subcategory['parent_category']);
+            array_push($newSubcategories, $subcategory);
+        }
+
+        return $newSubcategories;
     }
 
     public static function getManySubcategories() {
