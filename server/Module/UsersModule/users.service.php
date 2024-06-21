@@ -55,26 +55,7 @@ class UserService {
 
         $user = self::getDataUserUptade($user, $data);
         
-        if(!trim($user->cpf)) {
-            AppError("CPF é obrigatório, tente novamente inserindo um.", 400);
-        }
-
-        if(!checkEmail($user->email)) {
-            AppError('E-mail inválido', 400); 
-         }
-
-        if(strlen($user->cpf) != 11) {
-            AppError("CPF inválido.", 400);
-        }
-        
-        if(self::cpfExists($user)) {
-            AppError("Já existe um usuário cadastrado com este CPF.", 400);
-        }
-
-        if(self::emailExists($user)) {
-            AppError("Já existe um usuário cadastrado com este e-mail.", 400);
-        }
-
+        self::validateDataUserUpdate($user, $data);
 
         try {
             (new qbquery('users'))
@@ -120,7 +101,9 @@ class UserService {
 
         if(trim($cpf) && getData('users', ['cpf' => $cpf])) {
             AppError("Já existe um usuário com este CPF cadastrado.", 409);
-        };
+        }
+
+        self::validatePasswordLen($password);
 
         if(getData('users', ['email' => $email])) {
             AppError("Já existe um usuário com este e-mail cadastrado.", 409);
@@ -215,6 +198,8 @@ class UserService {
 
     public static function verifyPasswordByUserId($data, $id) {
         if(trim($data->password)) {
+            self::validatePasswordLen($data->password);
+
             $user = self::getUserById($id);
 
             $passwordMatch = password_verify($data->old_password, $user->password);
@@ -223,6 +208,34 @@ class UserService {
                 AppError("Senha antiga não confere.", 401);
             }
             
+        }
+    }
+
+    public static function validateDataUserUpdate($user, $data) {
+        if(!trim($user->cpf)) {
+            AppError("CPF é obrigatório, tente novamente inserindo um.", 400);
+        }
+
+        if(!checkEmail($user->email)) {
+            AppError('E-mail inválido', 400); 
+         }
+
+        if(strlen($user->cpf) != 11) {
+            AppError("CPF inválido.", 400);
+        }
+        
+        if(self::cpfExists($user)) {
+            AppError("Já existe um usuário cadastrado com este CPF.", 400);
+        }
+
+        if(self::emailExists($user)) {
+            AppError("Já existe um usuário cadastrado com este e-mail.", 400);
+        }
+    }
+
+    public static function validatePasswordLen($password) {
+        if(strlen($password) < 6 ) {
+            AppError("Senha deve ter no mínimo 6 caracteres.", 400);
         }
     }
 }
