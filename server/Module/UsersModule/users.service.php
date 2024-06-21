@@ -1,4 +1,5 @@
 <?php
+require_once(dirname(__DIR__) .'/sessionsModule/sessions.service.php');
 
 class UserService {
     public static function create($data) {
@@ -50,6 +51,8 @@ class UserService {
             AppError('Usuário não encontrado.', 404);
         }
         
+        self::verifyPasswordByUserId($data, $id);
+
         $user = self::getDataUserUptade($user, $data);
         
         if(!trim($user->cpf)) {
@@ -208,6 +211,19 @@ class UserService {
         return (new qbquery('users'))
         ->orderBy(['id DESC'])
         ->getMany();
+    }
+
+    public static function verifyPasswordByUserId($data, $id) {
+        if(trim($data->password)) {
+            $user = self::getUserById($id);
+
+            $passwordMatch = password_verify($data->old_password, $user->password);
+
+            if(!$passwordMatch) {
+                AppError("Senha antiga não confere.", 401);
+            }
+            
+        }
     }
 }
 

@@ -11,10 +11,6 @@ class UsersController {
     }
 
     public function update() {
-        if(!isAuthenticated()) {
-            die;
-        }
-
         $id   = getRouteParams('id');
         $body =  requestBody(); 
         UserService::update(id : $id, data : $body);

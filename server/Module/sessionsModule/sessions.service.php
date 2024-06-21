@@ -9,7 +9,7 @@ class SessionsService {
 
      self::validateDataCreate($data);
 
-     $user = self::getUserByEmailAndaPassword($email, $password);
+     $user = self::getUserByEmailAndPassword($email, $password);
      unset($user->password); // Por segurança, remove a senha do usuário  do objeto.
 
      if(!$user) {  
@@ -42,7 +42,7 @@ class SessionsService {
     }
 
 
-    public static function getUserByEmailAndaPassword($email, $password) { 
+    public static function getUserByEmailAndPassword($email, $password) { 
         $user =  getData('users', ['email' => $email]);   
         
         if(!$user){
