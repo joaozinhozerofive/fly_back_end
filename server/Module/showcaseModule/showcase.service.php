@@ -160,10 +160,17 @@ class ShowcaseService {
             ->where([
                 'showcase_id' => $showcase['id']
             ])
-            ->innerJoin('products', ['products.product_id' => 'showcase_products.product_id'])
             ->getMany();
 
-            $showcase['products'] = $showCaseProducts;
+            $products = [];
+
+            foreach($showCaseProducts as $showcaseProduct) {
+                $newProduct = ProductsService::getProductById($showcaseProduct['product_id']);
+                array_push($products, $newProduct);
+            }
+
+
+            $showcase['products'] = $products;
 
             array_push($newShowCase, $showcase);
         }
@@ -184,10 +191,16 @@ class ShowcaseService {
             ->where([
                 'showcase_id' => $showcase['id']
             ])
-            ->innerJoin('products', ['products.product_id' => 'showcase_products.product_id'])
             ->getMany();
 
-            $showcase['products'] = $showCaseProducts;
+            $products = [];
+
+            foreach($showCaseProducts as $showcaseProduct) {
+                $newProduct = ProductsService::getProductById($showcaseProduct['product_id']);
+                array_push($products, $newProduct);
+            }
+
+            $showcase['products'] = $products;
 
             array_push($newShowCase, $showcase);
         }

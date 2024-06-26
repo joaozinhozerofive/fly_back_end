@@ -290,12 +290,12 @@ class qbquery{
 
     private function setQueryColumns() {
         $i = 1;
-
+        $this->query .= "$this->table.*";
         if($this->columns){
              foreach($this->columns as $index => $value){
                 if($value && $value != " "){
                     if($i == count($this->columns)){
-                        $this->query .= " $index AS $value";
+                        $this->query .= ", $index AS $value";
                     }
                     else {
                         $this->query .= " $index AS $value, ";
@@ -306,9 +306,6 @@ class qbquery{
                 }
                 $i++;
              }
-        }
-        else {
-            $this->query .= " * ";
         }
     }
 
