@@ -4,7 +4,7 @@ require_once($parentDir . '/uploadsConfig/upload.php');
 class BannerService {
     public static function create($data, $file) {
         $page_name     = $data->page_name;
-        $banner_tittle = $data->banner_tittle;
+        $banner_title  = $data->banner_title ;
         $image         = $file->image;
 
         self::validateDataBannerCreate($data);
@@ -16,7 +16,7 @@ class BannerService {
             (new qbquery('banner'))
             ->insert([
                 'page_name'     => $page_name, 
-                'banner_tittle' => $banner_tittle, 
+                'banner_title ' => $banner_title , 
                 'image'         => $image->name
             ]);
 
@@ -58,7 +58,7 @@ class BannerService {
 
     public static function validateDataBannerCreate($data) {
         $page_name     = $data->page_name;
-        $banner_tittle = $data->banner_tittle;
+        $banner_title  = $data->banner_title ;
 
         if(!trim($page_name)) {
             AppError("Nome da página é obrigatório", 400);
