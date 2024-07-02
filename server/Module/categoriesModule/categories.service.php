@@ -67,7 +67,7 @@ class CategoriesService{
 
             $subcategories = SubcategoriesService::getSubCategoriesByParentCategory($category->id);
 
-            $subcategories = self::getArrayParentCategoryFormatted($subcategories);
+            $subcategories = self::getArraySubcategoriesFormatted($subcategories);
             $category->subcategories = $subcategories;
 
             return $category;
@@ -102,11 +102,11 @@ class CategoriesService{
         }
     }
 
-    public static function getArrayParentCategoryFormatted($subcategories) {
+    public static function getArraySubcategoriesFormatted($subcategories) {
             $subcategoriesFormatted = [];
-
+        
             foreach($subcategories as $subcategory) {
-                $subcategory['parent_category'] = array_db_toPHP($subcategory['parent_category']);
+                unset($subcategory['parent_category']);
 
                 array_push($subcategoriesFormatted, $subcategory);
             }
@@ -125,7 +125,7 @@ class CategoriesService{
             
             foreach($categories as $category) {
                 $subcategories  = SubcategoriesService::getSubCategoriesByParentCategory($category['id']);
-                $category['subcategories'] = self::getArrayParentCategoryFormatted($subcategories);
+                $category['subcategories'] = self::getArraySubcategoriesFormatted($subcategories);
                 $categoriesFormatted[] = $category;
             }
 
@@ -141,7 +141,7 @@ class CategoriesService{
 
         foreach($categories as $category) {
             $subcategories  = SubcategoriesService::getSubCategoriesByParentCategory($category['id']);
-            $category['subcategories'] = self::getArrayParentCategoryFormatted($subcategories);
+            $category['subcategories'] = self::getArraySubcategoriesFormatted($subcategories);
             array_push($categoriesFormatted, $category);
         }
 
