@@ -1,0 +1,17 @@
+RewriteEngine On
+RewriteBase /fly-web-service/server/
+
+# Redirecionar todas as solicitações para o arquivo index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ server.php [L]
+
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+
+SetEnv DB_HOST ""
+SetEnv DB_USER ""
+SetEnv DB_PASS ""
+SetEnv DB_PORT 
+
+SetEnv AUTH_SECRET ""
