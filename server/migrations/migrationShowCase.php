@@ -1,12 +1,14 @@
 <?php 
 function migrationShowCase() {
-    $sql = "CREATE TABLE IF NOT EXISTS showcase (
-            id SERIAL PRIMARY KEY,
-            showcase_name VARCHAR (100),
-            page_name VARCHAR (350),
-            product_id INT,
-            FOREIGN KEY (product_id) REFERENCES products(id)
-            );";
+    $sql = "CREATE TABLE IF NOT EXISTS public.showcase
+(
+    showcase_name character varying(100) COLLATE pg_catalog.default,
+    page_name character varying(350) COLLATE pg_catalog.default,
+    is_active integer,
+    id integer NOT NULL DEFAULT nextval('showcase_id_seq'::regclass),
+    CONSTRAINT showcase_pkey PRIMARY KEY (id),
+    CONSTRAINT is_active_ck CHECK (is_active = ANY (ARRAY[0, 1]))
+);";
     
     migration($sql);
  }
